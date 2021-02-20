@@ -36,8 +36,12 @@ public class cablescript : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
             {
-                // Check if the cursor is over a service provider object
+                // Check if the cursor is over a service provider object before placing
                 CreateNode(target);
+
+                // When node placed, get cost and subtract this amount from wallet
+                int cost = GetCost(target);
+
                 firstPlaced = true;
             }
 
@@ -45,7 +49,8 @@ public class cablescript : MonoBehaviour
 
             if (firstPlaced)
             {
-                DisplayCost(target);
+                // For displaying cost as the mouse cover moves
+                Debug.Log(GetCost(target));
             }
 
         } else {
@@ -65,7 +70,7 @@ public class cablescript : MonoBehaviour
         //lineRenderer.SetPosition(lineRenderer.positionCount - 2, position);
     }
 
-    void DisplayCost(Vector3 targetPos)
+    int GetCost(Vector3 targetPos)
     {
         int size = nodes.Count;
         GameObject latestNode = nodes[size - 1];
@@ -76,6 +81,9 @@ public class cablescript : MonoBehaviour
         // Get Absolute value of dist
         dist = Mathf.Abs(dist);
 
-        //print(dist);
+        int cost = (int)dist;
+        return cost;
     }
+
+    
 }
