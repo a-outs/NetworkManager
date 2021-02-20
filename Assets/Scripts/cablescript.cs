@@ -23,27 +23,38 @@ public class cablescript : MonoBehaviour
         lineRenderer.positionCount++;
         length = 0;
         buildmode = true;
-        CreateNode(transform.position);
+        //CreateNode(transform.position);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (buildmode) {
+        if (buildmode)
+        {
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
-            lineRenderer.SetPosition(lineRenderer.positionCount - 1, target);
-            if(Input.GetMouseButtonDown(0)) {
+
+            if (Input.GetMouseButtonDown(0))
+            {
                 CreateNode(target);
             }
+
+            lineRenderer.SetPosition(lineRenderer.positionCount - 1, target);
+         
+        } else {
+            // Resize the list so that the last element would be automatically deleted
+            int nodeSize = nodes.Count;
+            lineRenderer.positionCount = nodeSize;
+
         }
     }
 
     void CreateNode(Vector3 position) {
         GameObject tempNode = Instantiate(node, position, transform.rotation);
         tempNode.transform.SetParent(gameObject.transform);
+
         nodes.Add(tempNode);
         lineRenderer.positionCount++;
-        lineRenderer.SetPosition(lineRenderer.positionCount - 2, position);
+        //lineRenderer.SetPosition(lineRenderer.positionCount - 2, position);
     }
 }
