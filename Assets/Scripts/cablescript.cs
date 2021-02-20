@@ -39,7 +39,7 @@ public class cablescript : MonoBehaviour
                 // Check if the cursor is over a service provider object before placing
                 CreateNode(target);
                 // When node placed, get cost and subtract this amount from wallet
-                int cost = GetCost(target);
+                double cost = GetCost(target);
                 firstPlaced = true;
             }
 
