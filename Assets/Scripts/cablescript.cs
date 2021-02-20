@@ -4,16 +4,15 @@ using UnityEngine;
 
 public class cablescript : MonoBehaviour
 {
-
     private double length;
-
     private LineRenderer lineRenderer;
 
     [SerializeField]
     private GameObject node;
+
+    private bool firstPlaced = false;
     
     public bool buildmode;
-
     public List<GameObject> nodes;
 
     // Start is called before the first frame update
@@ -23,6 +22,7 @@ public class cablescript : MonoBehaviour
         lineRenderer.positionCount++;
         length = 0;
         buildmode = true;
+        
         //CreateNode(transform.position);
     }
 
@@ -36,11 +36,18 @@ public class cablescript : MonoBehaviour
 
             if (Input.GetMouseButtonDown(0))
             {
+                // Check if the cursor is over a service provider object
                 CreateNode(target);
+                firstPlaced = true;
             }
 
             lineRenderer.SetPosition(lineRenderer.positionCount - 1, target);
-         
+
+            if (firstPlaced)
+            {
+                DisplayCost(target);
+            }
+
         } else {
             // Resize the list so that the last element would be automatically deleted
             int nodeSize = nodes.Count;
@@ -56,5 +63,19 @@ public class cablescript : MonoBehaviour
         nodes.Add(tempNode);
         lineRenderer.positionCount++;
         //lineRenderer.SetPosition(lineRenderer.positionCount - 2, position);
+    }
+
+    void DisplayCost(Vector3 targetPos)
+    {
+        int size = nodes.Count;
+        GameObject latestNode = nodes[size - 1];
+        Vector3 latestNodePos = latestNode.transform.position;
+
+        // Calculate distance between current target and last node
+        float dist = Vector3.Distance(latestNodePos, targetPos);
+        // Get Absolute value of dist
+        dist = Mathf.Abs(dist);
+
+        //print(dist);
     }
 }
