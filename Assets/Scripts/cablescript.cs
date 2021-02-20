@@ -9,9 +9,11 @@ public class cablescript : MonoBehaviour
 
     [SerializeField]
     private GameObject node;
-
     private bool firstPlaced = false;
-    
+    private Ray ray;
+    private RaycastHit2D hit;
+    private Vector3 snappedPos;
+
     public bool buildmode;
     public List<GameObject> nodes;
 
@@ -34,21 +36,49 @@ public class cablescript : MonoBehaviour
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
 
-            if (Input.GetMouseButtonDown(0))
+            //if (Input.GetMouseButtonDown(0))
+            //{
+            //    GameObject objectUnderMouse = GetObjectUnderMouse();
+            //    if (objectUnderMouse)
+            //    {
+                    
+            //        // Use the center of the object under the cursor as the position for the node
+            //        snappedPos = objectUnderMouse.transform.position;
+            //        CreateNode(snappedPos);
+
+            //        // When node placed, get cost and subtract this amount from wallet
+            //        double cost = GetCost(snappedPos);
+            //        firstPlaced = true;
+            //    }
+            //}
+
+            GameObject objectUnderMouse = GetObjectUnderMouse();
+            if (objectUnderMouse)
             {
-                // Check if the cursor is over a service provider object before placing
-                CreateNode(target);
-                // When node placed, get cost and subtract this amount from wallet
-                double cost = GetCost(target);
-                firstPlaced = true;
+                snappedPos = objectUnderMouse.transform.position;
+                if (Input.GetMouseButtonDown(0))
+                {
+                    // Use the center of the object under the cursor as the position for the node
+                    CreateNode(snappedPos);
+
+                    // When node placed, get cost and subtract this amount from wallet
+                    double cost = GetCost(snappedPos);
+                    firstPlaced = true;      
+                }
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
+            }
+            else
+            {
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Real time
             }
 
-            lineRenderer.SetPosition(lineRenderer.positionCount - 1, target);
+            //lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Real time
+            //lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
 
             if (firstPlaced)
             {
                 // For displaying cost as the mouse cover moves
-                Debug.Log(GetCost(target));
+                //Debug.Log(GetCost(target));
             }
 
         } else {
@@ -82,5 +112,18 @@ public class cablescript : MonoBehaviour
         return cost;
     }
 
-    
+    GameObject GetObjectUnderMouse()
+    {
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
+
+        if (hit)
+        {
+            if (hit.collider.CompareTag("ServiceProvider"))
+            {
+                return hit.collider.gameObject;
+            }
+        }
+        return null;
+    }
 }
