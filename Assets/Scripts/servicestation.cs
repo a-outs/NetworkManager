@@ -6,6 +6,8 @@ public class servicestation : MonoBehaviour
 {
     public GameObject serviceArea;
 
+    public List<GameObject> connectedStations;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,5 +22,9 @@ public class servicestation : MonoBehaviour
     
     public void addServiceArea(GameObject inServiceArea) {
         serviceArea = inServiceArea;
+    }
+
+    public void addConnection(GameObject connectedStation) {
+        connectedStations.Add(connectedStation);
     }
 }

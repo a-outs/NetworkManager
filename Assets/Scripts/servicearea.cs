@@ -25,4 +25,9 @@ public class servicearea : MonoBehaviour
     public void addServiceStation(GameObject serviceStation) {
         serviceStations.Add(serviceStation);
     }
+
+    // function to return how much money this service area should give per unit of time
+    public double returnPerTime() {
+        return (double) (residents * serviceStations.Count);
+    }
 }
