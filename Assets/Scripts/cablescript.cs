@@ -9,11 +9,12 @@ public class cablescript : MonoBehaviour
 
     [SerializeField]
     private GameObject node;
+    
     private bool firstPlaced = false;
     private Ray ray;
     private RaycastHit2D hit;
     private Vector3 snappedPos;
-
+    
     public bool buildmode;
     public List<GameObject> nodes;
 
@@ -107,4 +108,21 @@ public class cablescript : MonoBehaviour
         }
         return null;
     }
+
+    int GetCost(Vector3 targetPos)
+    {
+        int size = nodes.Count;
+        GameObject latestNode = nodes[size - 1];
+        Vector3 latestNodePos = latestNode.transform.position;
+
+        // Calculate distance between current target and last node
+        float dist = Vector3.Distance(latestNodePos, targetPos);
+        // Get Absolute value of dist
+        dist = Mathf.Abs(dist);
+
+        int cost = (int)dist;
+        return cost;
+    }
+
+    
 }
