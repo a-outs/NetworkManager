@@ -8,16 +8,25 @@ public class servicestation : MonoBehaviour
     public List<GameObject> connectedStations;
     public bool connectedToServer;
 
+    private SpriteRenderer spriteRenderer;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        spriteRenderer = this.gameObject.GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (isConnected() || connectedToServer)
+        {
+            spriteRenderer.color = Color.yellow;
+        }
+        else
+        {
+            spriteRenderer.color = Color.white;
+        }
     }
     
     public void addServiceArea(GameObject inServiceArea) {
@@ -32,5 +41,30 @@ public class servicestation : MonoBehaviour
             return true;
         }
         return false; 
+    }
+
+    //private bool setStatusToConnected()
+    //{
+
+    //}
+    private bool isConnected()
+    {
+        foreach(GameObject station in connectedStations)
+        {
+            if (station.CompareTag("ServiceStation"))
+            {
+                bool connected = station.GetComponent<servicestation>().connectedToServer;
+                if (connected)
+                {
+                    connectedToServer = true;
+                }
+            }
+            // If the current station is directly conencted to the "source"
+            else if (station.CompareTag("ServiceSource"))
+            {
+                connectedToServer = true;
+            }
+        }
+        return false;
     }
 }
