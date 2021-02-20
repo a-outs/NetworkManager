@@ -69,17 +69,30 @@ public class cablescript : MonoBehaviour
         }
     }
 
-    void ConnectStations(GameObject objectUnderMouse)
+    bool ConnectStations(GameObject objectUnderMouse)
     {
+        bool isPlaced = false;
         if (firstTimePlacing)
         {
             lastStationPlaced = objectUnderMouse;
+            return true;
         }
         else
         {
-            lastStationPlaced.GetComponent<servicestation>().addConnection(objectUnderMouse);
+            isPlaced = lastStationPlaced.GetComponent<servicestation>().addConnection(objectUnderMouse);
             objectUnderMouse.GetComponent<servicestation>().addConnection(lastStationPlaced);
         }
+
+        // Return true or flase based on whether or not the connection was succesful or not
+        if (isPlaced)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     void PlaceNewStation(GameObject objectUnderMouse)
@@ -87,18 +100,36 @@ public class cablescript : MonoBehaviour
         snappedPos = objectUnderMouse.transform.position;
         if (Input.GetMouseButtonDown(0))
         {
+            bool connectionSuccess; // Did I spell Sucess right?
+
             // Connect the current station with the last station,
             // and update the current station as the lastStationPlaced
-            ConnectStations(objectUnderMouse);
-            lastStationPlaced = objectUnderMouse;
+            connectionSuccess = ConnectStations(objectUnderMouse);
+            
+            if (connectionSuccess)
+            {
+                lastStationPlaced = objectUnderMouse;
 
-            // Use the center of the object under the cursor as the position for the node
-            CreateNode(snappedPos);
+                // Use the center of the object under the cursor as the position for the node
+                CreateNode(snappedPos);
+                //lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
 
-            // When node placed, get cost and subtract this amount from wallet
-            double cost = GetCost(snappedPos);
+                // When node placed, get cost and subtract this amount from wallet
+                double cost = GetCost(snappedPos);
 
-            firstTimePlacing = false;
+                firstTimePlacing = false;
+            }
+
+            //lastStationPlaced = objectUnderMouse;
+
+            //// Use the center of the object under the cursor as the position for the node
+            //CreateNode(snappedPos);
+            ////lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
+
+            //// When node placed, get cost and subtract this amount from wallet
+            //double cost = GetCost(snappedPos);
+
+            //firstTimePlacing = false;
         }
     }
 

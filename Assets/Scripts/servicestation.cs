@@ -25,8 +25,9 @@ public class servicestation : MonoBehaviour
     }
 
     public bool addConnection(GameObject connectedStation) {
-        if (!connectedStations.Contains(connectedStation))
-        {
+        // Only add if it already hasn't been added or it is not itself
+        if (!connectedStations.Contains(connectedStation) && connectedStation != this.gameObject) //Gygi not gonna like that I used                                    
+        {                                                                                         //this. like this but oh well ¯\_('.')_/¯ 
             connectedStations.Add(connectedStation);
             return true;
         }
