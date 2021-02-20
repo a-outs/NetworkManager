@@ -36,22 +36,6 @@ public class cablescript : MonoBehaviour
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
 
-            //if (Input.GetMouseButtonDown(0))
-            //{
-            //    GameObject objectUnderMouse = GetObjectUnderMouse();
-            //    if (objectUnderMouse)
-            //    {
-                    
-            //        // Use the center of the object under the cursor as the position for the node
-            //        snappedPos = objectUnderMouse.transform.position;
-            //        CreateNode(snappedPos);
-
-            //        // When node placed, get cost and subtract this amount from wallet
-            //        double cost = GetCost(snappedPos);
-            //        firstPlaced = true;
-            //    }
-            //}
-
             GameObject objectUnderMouse = GetObjectUnderMouse();
             if (objectUnderMouse)
             {
@@ -71,9 +55,6 @@ public class cablescript : MonoBehaviour
             {
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Real time
             }
-
-            //lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Real time
-            //lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
 
             if (firstPlaced)
             {
@@ -119,7 +100,7 @@ public class cablescript : MonoBehaviour
 
         if (hit)
         {
-            if (hit.collider.CompareTag("ServiceProvider"))
+            if (hit.collider.CompareTag("ServiceStation"))
             {
                 return hit.collider.gameObject;
             }
