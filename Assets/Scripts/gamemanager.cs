@@ -83,8 +83,11 @@ public class gamemanager : MonoBehaviour
             cableBuilding = true;
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
-            GameObject temp = Instantiate(cable, target, transform.rotation);
-            cables.Add(temp);
+
+
+            // The UI cost display script needs the cable to be isntantiated from the start
+            //GameObject temp = Instantiate(cable, target, transform.rotation);
+            //cables.Add(temp);
         }
     }
 

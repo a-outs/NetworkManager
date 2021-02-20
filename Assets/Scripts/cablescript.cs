@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class cablescript : MonoBehaviour
 {
@@ -9,19 +11,24 @@ public class cablescript : MonoBehaviour
 
     [SerializeField]
     private GameObject node;
+    private GameObject lastStationPlaced;
     
-    private bool firstPlaced = false;
+    private bool firstTimePlacing = true;
     private Ray ray;
     private RaycastHit2D hit;
     private Vector3 snappedPos;
     
     public bool buildmode;
     public List<GameObject> nodes;
+    public double currentCost;
+
+    public gamemanager gameManager;
 
     // Start is called before the first frame update
     void Start()
     {
         lineRenderer = gameObject.GetComponent<LineRenderer>();
+        lineRenderer.alignment = LineAlignment.TransformZ;
         lineRenderer.positionCount++;
         length = 0;
         buildmode = true;
@@ -40,33 +47,58 @@ public class cablescript : MonoBehaviour
             GameObject objectUnderMouse = GetObjectUnderMouse();
             if (objectUnderMouse)
             {
-                snappedPos = objectUnderMouse.transform.position;
-                if (Input.GetMouseButtonDown(0))
-                {
-                    // Use the center of the object under the cursor as the position for the node
-                    CreateNode(snappedPos);
-
-                    // When node placed, get cost and subtract this amount from wallet
-                    double cost = GetCost(snappedPos);
-                    firstPlaced = true;      
-                }
+                PlaceNewStation(objectUnderMouse);
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
             }
             else
             {
-                lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Real time
+                lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Free flow
             }
 
-            if (firstPlaced)
-            {
-                // For displaying cost as the mouse cover moves
-                //Debug.Log(GetCost(target));
-            }
+            UpdateCableCost(target);
 
         } else {
             // Resize the list so that the last element would be automatically deleted
             int nodeSize = nodes.Count;
             lineRenderer.positionCount = nodeSize;
+
+            // On exit, firstTimePlacing needs to be reset because
+            // the next time it enters buildmode it will be as the same thing as
+            // building for the first time
+            firstTimePlacing = true;
+        }
+    }
+
+    void ConnectStations(GameObject objectUnderMouse)
+    {
+        if (firstTimePlacing)
+        {
+            lastStationPlaced = objectUnderMouse;
+        }
+        else
+        {
+            lastStationPlaced.GetComponent<servicestation>().addConnection(objectUnderMouse);
+            objectUnderMouse.GetComponent<servicestation>().addConnection(lastStationPlaced);
+        }
+    }
+
+    void PlaceNewStation(GameObject objectUnderMouse)
+    {
+        snappedPos = objectUnderMouse.transform.position;
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Connect the current station with the last station,
+            // and update the current station as the lastStationPlaced
+            ConnectStations(objectUnderMouse);
+            lastStationPlaced = objectUnderMouse;
+
+            // Use the center of the object under the cursor as the position for the node
+            CreateNode(snappedPos);
+
+            // When node placed, get cost and subtract this amount from wallet
+            double cost = GetCost(snappedPos);
+
+            firstTimePlacing = false;
         }
     }
 
@@ -92,6 +124,14 @@ public class cablescript : MonoBehaviour
 
         double cost = (double)dist;
         return cost;
+    }
+
+    void UpdateCableCost(Vector3 target)
+    {
+        if (!firstTimePlacing)
+        {
+            currentCost = GetCost(target);
+        }
     }
 
     GameObject GetObjectUnderMouse()

@@ -5,8 +5,8 @@ using UnityEngine;
 public class servicestation : MonoBehaviour
 {
     public GameObject serviceArea;
-
     public List<GameObject> connectedStations;
+    public bool connectedToServer;
 
     // Start is called before the first frame update
     void Start()
@@ -24,7 +24,12 @@ public class servicestation : MonoBehaviour
         serviceArea = inServiceArea;
     }
 
-    public void addConnection(GameObject connectedStation) {
-        connectedStations.Add(connectedStation);
+    public bool addConnection(GameObject connectedStation) {
+        if (!connectedStations.Contains(connectedStation))
+        {
+            connectedStations.Add(connectedStation);
+            return true;
+        }
+        return false; 
     }
 }
