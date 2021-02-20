@@ -17,4 +17,8 @@ public class servicestation : MonoBehaviour
     {
         
     }
+    
+    public void addServiceArea(GameObject inServiceArea) {
+        serviceArea = inServiceArea;
+    }
 }

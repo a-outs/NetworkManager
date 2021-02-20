@@ -21,4 +21,8 @@ public class servicearea : MonoBehaviour
     {
         
     }
+
+    public void addServiceStation(GameObject serviceStation) {
+        serviceStations.Add(serviceStation);
+    }
 }
