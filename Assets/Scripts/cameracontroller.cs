@@ -14,17 +14,17 @@ public class cameracontroller : MonoBehaviour
     float zoomSpeed;
 
     [SerializeField]
-    Vector3 maxCamBound;
-    [SerializeField]
-    Vector3 minCambound;
-
-    [SerializeField]
     float camSize;
 
-    Vector2 velocity;
+    Vector3 velocity;
 
-    private int maxSize;
-    private int minSize;
+    [SerializeField]
+    private Vector2 camMax;
+    [SerializeField]
+    private Vector2 camMin;
+
+    private float maxSize;
+    private float minSize;
 
     void Start() {
         maxSize = 18;
@@ -32,11 +32,40 @@ public class cameracontroller : MonoBehaviour
     }
     
     void Update () {
+        MoveCamera();
+        ResizeCamera();
+    }
+
+    void MoveCamera()
+    {
         camSize = GetComponent<Camera>().orthographicSize;
+        velocity = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * speed * Time.deltaTime * ((GetComponent<Camera>().orthographicSize / 100) * zoomedWeight);
 
-        velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * speed * Time.deltaTime * ((GetComponent<Camera>().orthographicSize / 100) * zoomedWeight);
-        transform.Translate(velocity);
+        Vector3 nextPos = transform.position + velocity;
+        if (nextPos.x >= camMax.x)
+        {
+            nextPos.x = camMax.x;
+        }
+        else if (nextPos.x <= camMin.x)
+        {
+            nextPos.x = camMin.x;
+        }
+        else if (nextPos.y >= camMax.y)
+        {
+            nextPos.y = camMax.y;
+        }
+        else if (nextPos.y <= camMin.y)
+        {
+            nextPos.y = camMin.y;
+        }
+        else
+        {
+            transform.Translate(velocity);
+        }
+    }
 
+    void ResizeCamera()
+    {
         float camSizeChange = Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
         if ((camSize - camSizeChange) >= maxSize)
         {
@@ -50,22 +79,6 @@ public class cameracontroller : MonoBehaviour
         {
             GetComponent<Camera>().orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
         }
-        
     }
 
-        ////float sizeToSet = Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
-        //if (sizeToSet >= maxSize)
-        //{
-        //    GetComponent<Camera>().orthographicSize = maxSize;
-        //}
-        //else if (sizeToSet <= minSize)
-        //{
-        //    GetComponent<Camera>().orthographicSize = minSize;
-        //}
-        //else
-        //{
-        //    GetComponent<Camera>().orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
-        //}
-        
-    
 }
