@@ -16,6 +16,7 @@ public class servicestation : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
 
+    private GameObject info;
     private GameObject infoText;
     private GameObject loadingImage;
 
@@ -29,7 +30,8 @@ public class servicestation : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<gamemanager>();
 
         spriteRenderer = this.gameObject.GetComponent<SpriteRenderer>();
-        infoText = gameObject.transform.Find("Canvas").Find("Info").gameObject;
+        info = gameObject.transform.Find("Canvas").Find("Info").gameObject;
+        infoText = info.transform.Find("InfoText").gameObject;
         loadingImage = gameObject.transform.Find("Canvas").Find("Loading").gameObject;
         if(!connectedToServer) {
             building = true;
@@ -38,13 +40,13 @@ public class servicestation : MonoBehaviour
         else loadingImage.SetActive(false);
 
         transitionLength = gameManager.hoverOverLength;
-        infoText.transform.DOScale(0, 0);
+        info.transform.DOScale(0, 0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        checkConnections();
+        //checkConnections();
 
         if (isActive())
         {
@@ -64,13 +66,13 @@ public class servicestation : MonoBehaviour
     }
 
     void OnMouseEnter() {
-        infoText.transform.DOScale(0, 0);
-        infoText.transform.DOScale(1f, transitionLength);
+        info.transform.DOScale(0, 0);
+        info.transform.DOScale(1f, transitionLength);
     }
 
     void OnMouseExit() {
-        infoText.transform.DOScale(1f, 0);
-        infoText.transform.DOScale(0, transitionLength);
+        info.transform.DOScale(1f, 0);
+        info.transform.DOScale(0, transitionLength);
     }
 
     void OnMouseDown() {
@@ -155,11 +157,13 @@ public class servicestation : MonoBehaviour
         if(broken || building) {
             return inputList;
         }
-        foreach(GameObject station in inputList) {
-            if(station == gameObject) return inputList;
+        else {
+            outputList.Add(gameObject);
         }
         foreach(GameObject station in connectedStations) {
-            outputList.AddRange(station.GetComponent<servicestation>().ValidStationList(outputList));
+            if(!outputList.Contains(station)) {
+                outputList = station.GetComponent<servicestation>().ValidStationList(outputList);
+            }
         }
         return outputList;
     }

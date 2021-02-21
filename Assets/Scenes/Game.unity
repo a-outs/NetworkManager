@@ -1093,6 +1093,7 @@ MonoBehaviour:
   cable: {fileID: 916863870894705239, guid: 6707aac8a65b7584e8443607ae95de73, type: 3}
   cables: []
   serviceAreas: []
+  serviceSource: {fileID: 2002781465}
   cableCost: 100
   serviceStationCost: 6969
   serviceStationMaintenance: 69
@@ -1888,6 +1889,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2002781465 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7993966304075689134, guid: 6675410c9929e7349aa77bf2b58d7c81, type: 3}
+  m_PrefabInstance: {fileID: 306405797}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2092707594
 GameObject:
   m_ObjectHideFlags: 0

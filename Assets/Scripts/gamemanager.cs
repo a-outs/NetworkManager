@@ -26,7 +26,10 @@ public class gamemanager : MonoBehaviour
 
     public GameObject[] serviceAreas;
 
-    private GameObject serviceSource;
+    public GameObject serviceSource;
+
+    [SerializeField]
+    List<GameObject> validStations;
 
     private bool cableBuilding;
     private bool stationBuilding;
@@ -52,8 +55,6 @@ public class gamemanager : MonoBehaviour
         buildingStatus = GameObject.Find("BuildingStatus");
 
         serviceAreas = GameObject.FindGameObjectsWithTag("ServiceArea");
-
-        serviceSource = GameObject.Find("ServiceSource");
 
         setMoney(0);
         updateMoneyPerTime();
@@ -103,6 +104,8 @@ public class gamemanager : MonoBehaviour
             BuildCable();
         }
 
+        ValidStations();
+
         if(cableBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Cable";
         else if(stationBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Station";
         else buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: NOTHING";
@@ -150,7 +153,6 @@ public class gamemanager : MonoBehaviour
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
 
-
             // The UI cost display script needs the cable to be isntantiated from the start
             GameObject temp = Instantiate(cable, target, transform.rotation);
             cables.Add(temp);
@@ -158,10 +160,26 @@ public class gamemanager : MonoBehaviour
     }
 
     public void ValidStations() {
-        List<GameObject> validStations;
+        validStations = new List<GameObject>();
+        validStations.Add(serviceSource);
         foreach(GameObject station in serviceSource.GetComponent<servicestation>().connectedStations) {
-            validStations.AddRange(station.GetComponent<servicestation>().ValidStationList(validStations));
+            if(!validStations.Contains(station)) {
+                validStations = station.GetComponent<servicestation>().ValidStationList(validStations);
+            }
         }
+
+        foreach(GameObject station in serviceStations) {
+            if(validStations.Contains(station)) {
+                station.GetComponent<servicestation>().connectedToServer = true;
+            }
+            else {
+                station.GetComponent<servicestation>().connectedToServer = false;
+            }
+        }
+    }
+
+    public void StationToggler() {
+        
     }
 
     IEnumerator TimeAdvancement() {
