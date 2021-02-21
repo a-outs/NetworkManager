@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class StormBehavior : MonoBehaviour
 {
+    public GameObject stormVisual;
+
     private gamemanager gameManager;
     private List<GameObject> serviceStations;
 
     // Start is called before the first frame update
     void Start()
     {
-        gameManager = this.GetComponent<gamemanager>();    
+        gameManager = this.GetComponent<gamemanager>();
+
     }
 
     // Update is called once per frame
@@ -25,23 +29,31 @@ public class StormBehavior : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L))
         {
-            print("joe chingas");
             CreateStorm();
         }
     }
 
     void CreateStorm()
     {
-        // Get a random service provider out of the total list
-        int randomIndex = Random.Range(0, serviceStations.Count-1);
-        //int randomIndex = 1;
-        Vector2 providerPos = serviceStations[randomIndex].transform.position;
+        Vector2 providerPos = new Vector2(0, 0);
+        Collider2D[] objectsInRadius = null;
+        // Need to check for this so that storms won't be triggered
+        // When there is only one serviceStation object
+        if (serviceStations.Count >= 1)
+        {
+            // Get a random service provider out of the total list
+            int randomIndex = Random.Range(0, serviceStations.Count - 1);
+            //int randomIndex = 1;
 
-        // Set the radius of the affected area
-        float stormRadius = Random.Range(6, 9);
+            providerPos = serviceStations[randomIndex].transform.position;
 
-        // Get all objects within 
-        Collider2D[] objectsInRadius = Physics2D.OverlapCircleAll(providerPos, stormRadius);
+            // Set the radius of the affected area
+            float stormRadius = Random.Range(6, 9);
+
+            // Get all objects within 
+            objectsInRadius = Physics2D.OverlapCircleAll(providerPos, stormRadius);
+
+        }
 
         if (objectsInRadius != null)
         {
@@ -67,6 +79,17 @@ public class StormBehavior : MonoBehaviour
                 }
             }
         }
-        
+        StartCoroutine("DisplayStormEffect");
+    }
+
+    IEnumerator DisplayStormEffect()
+    {
+        stormVisual.SetActive(true);
+        stormVisual.GetComponent<Image>().DOFade(.7f, 1f);
+        yield return new WaitForSeconds(1f);
+        stormVisual.GetComponent<Image>().DOFade(0, 1f);
+        yield return new WaitForSeconds(1f);
+        stormVisual.SetActive(false);
+        yield break;
     }
 }
