@@ -23,12 +23,12 @@ public class cameracontroller : MonoBehaviour
     [SerializeField]
     private Vector2 camMin;
 
+    [SerializeField]
     private float maxSize;
+    [SerializeField]
     private float minSize;
 
     void Start() {
-        maxSize = 18;
-        minSize = 5;
     }
     
     void Update () {

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
+using UnityEngine.UI;
 
 public class gamemanager : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class gamemanager : MonoBehaviour
     private int time;
     private double moneyPerTime;
     private double score;
+    private bool gameOver;
 
     public float hoverOverLength;
 
@@ -50,11 +53,16 @@ public class gamemanager : MonoBehaviour
     private GameObject scoreText;
     private GameObject buildingStatus;
     private GameObject StationIcon;
+    private GameObject cableBuildingIndicator;
+    private GameObject stationBuildingIndicator;
+    public GameObject endGame;
+    public GameObject endGameText;
 
     // Start is called before the first frame update
     void Start()
     {
         time = 1;
+        gameOver = false;
 
         moneyText = GameObject.Find("Money");
         moneyPerTimeText = GameObject.Find("MoneyPerTime");
@@ -62,6 +70,8 @@ public class gamemanager : MonoBehaviour
         scoreText = GameObject.Find("Score");
         buildingStatus = GameObject.Find("BuildingStatus");
         StationIcon = GameObject.Find("StationIcon");
+        cableBuildingIndicator = GameObject.Find("CableIndicator");
+        stationBuildingIndicator = GameObject.Find("StationIndicator");
         StationIcon.SetActive(false);
 
         audioSource = GetComponent<AudioSource>();
@@ -75,81 +85,106 @@ public class gamemanager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        updateMoneyPerTime();
+        if(!gameOver) {
+            updateMoneyPerTime();
 
-        serviceAreasCovered = 0;
-        foreach(GameObject serviceArea in serviceAreas) {
-            if(serviceArea.GetComponent<servicearea>().serviceStations.Count > 0) serviceAreasCovered++;
-        }
-        score = money * serviceStations.Count * Mathf.Pow(1.5f, serviceAreasCovered);
-        scoreText.GetComponent<TextMeshProUGUI>().text = "Score: " + score.ToString("F2");
-
-        //stop cable building if you press escape
-        if(Input.GetButtonDown("Cancel") || Input.GetMouseButtonDown(1)) {
-            foreach (GameObject oneCable in cables) {
-                oneCable.GetComponent<cablescript>().buildmode = false;
+            serviceAreasCovered = 0;
+            foreach(GameObject serviceArea in serviceAreas) {
+                if(serviceArea.GetComponent<servicearea>().serviceStations.Count > 0) serviceAreasCovered++;
             }
-            cableBuilding = false;
-            stationBuilding = false;
-        }
+            score = money * serviceStations.Count * Mathf.Pow(1.5f, serviceAreasCovered);
+            scoreText.GetComponent<TextMeshProUGUI>().text = "Score: " + (int) score;
 
-        if(Input.GetKeyDown(KeyCode.B)) {
-            BuildStation();
-        }
+            //stop cable building if you press escape
+            if(Input.GetButtonDown("Cancel") || Input.GetMouseButtonDown(1)) {
+                StopAllBuilding();
+            }
 
-        // make station icon follow mouse if building
-        if(stationBuilding) {
-            double serviceStationCost = 49 + Mathf.Pow(1.2f, serviceStations.Count);
-            StationIcon.SetActive(true);
-            Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            target.z = transform.position.z;
-            StationIcon.transform.position = target;
-            StationIcon.transform.Find("Canvas").Find("Text").GetComponent<TextMeshProUGUI>().text = "<color=\"red\">" + serviceStationCost.ToString("F2") + "</color>";
-        }
-        else StationIcon.SetActive(false);
+            // make station icon follow mouse if building
+            if(stationBuilding) {
+                double serviceStationCost = 49 + Mathf.Pow(1.2f, serviceStations.Count);
+                StationIcon.SetActive(true);
+                Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                target.z = transform.position.z;
+                StationIcon.transform.position = target;
+                StationIcon.transform.Find("Canvas").Find("Text").GetComponent<TextMeshProUGUI>().text = "<color=\"red\">" + serviceStationCost.ToString("F2") + "</color>";
+            }
+            else StationIcon.SetActive(false);
 
 
-        // Service station spawning
-        if(Input.GetMouseButtonDown(0) && stationBuilding) {
-            double serviceStationCost = 49 + Mathf.Pow(1.2f, serviceStations.Count);
-            if(money >= serviceStationCost) {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
-                if(hit.collider != null) {
-                    if(hit.collider.tag == "ServiceArea") { 
-                        // everything up to here is checking to see if there is enough money and if the station is on a service area and not ontop of another station
-                        audioSource.PlayOneShot(stationClip);
+            // Service station spawning
+            if(Input.GetMouseButtonDown(0) && stationBuilding) {
+                double serviceStationCost = 49 + Mathf.Pow(1.2f, serviceStations.Count);
+                foreach(GameObject station in serviceStations) {
+                    station.GetComponent<servicestation>().setRepairCost((double) 5 * Mathf.Log((float) serviceStationCost, 2f));
+                }
+                if(money >= serviceStationCost) {
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
+                    if(hit.collider != null) {
+                        if(hit.collider.tag == "ServiceArea") { 
+                            // everything up to here is checking to see if there is enough money and if the station is on a service area and not ontop of another station
+                            audioSource.PlayOneShot(stationClip);
 
-                        Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                        target.z = transform.position.z;
-                        GameObject tempStation = Instantiate(serviceStation, target, transform.rotation);
-                        
-                        double serviceStationMaintenance = 5 * Mathf.Pow(1.05f, serviceStations.Count);
-                        double serviceStationRepairCost = (double) Mathf.Log((float) serviceStationCost, 2f);
-                        
-                        serviceStations.Add(tempStation);
+                            Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                            target.z = transform.position.z;
+                            GameObject tempStation = Instantiate(serviceStation, target, transform.rotation);
+                            
+                            double serviceStationMaintenance = 5 * Mathf.Pow(1.05f, serviceStations.Count);
+                            double serviceStationRepairCost = (double) Mathf.Log((float) serviceStationCost, 2f);
+                            
+                            serviceStations.Add(tempStation);
 
-                        hit.collider.gameObject.GetComponent<servicearea>().addServiceStation(tempStation);
-                        tempStation.GetComponent<servicestation>().addServiceArea(hit.collider.gameObject);
+                            hit.collider.gameObject.GetComponent<servicearea>().addServiceStation(tempStation);
+                            tempStation.GetComponent<servicestation>().addServiceArea(hit.collider.gameObject);
 
-                        tempStation.GetComponent<servicestation>().setCosts(serviceStationMaintenance, serviceStationRepairCost);
+                            tempStation.GetComponent<servicestation>().setCosts(serviceStationMaintenance, serviceStationRepairCost);
 
-                        setMoney(-serviceStationCost);
+                            setMoney(-serviceStationCost);
+                        }
                     }
                 }
             }
+
+            // Cable Building
+            if(Input.GetKeyDown(KeyCode.C)) {
+                BuildCable();
+            }
+
+            // Station building
+            if(Input.GetKeyDown(KeyCode.B)) {
+                BuildStation();
+            }
+            
+            if(cableBuilding) {
+                cableBuildingIndicator.SetActive(true);
+            }
+            else {
+                cableBuildingIndicator.SetActive(false);
+            }
+
+            if(stationBuilding) {
+                stationBuildingIndicator.SetActive(true);
+            }
+            else {
+                stationBuildingIndicator.SetActive(false);
+            }
+
+            if(Input.GetKeyDown(KeyCode.T)) {
+                time = 5999;
+            }
+
+            if(time > 100) {
+                gameOver = true;
+                GameOver();
+            }
+
+            ValidStations();
+
+            if(cableBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Cable";
+            else if(stationBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Station";
+            else buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: NOTHING";
         }
-
-        // Cable Building
-        if(Input.GetKeyDown(KeyCode.C)) {
-            BuildCable();
-        }
-
-        ValidStations();
-
-        if(cableBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Cable";
-        else if(stationBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Station";
-        else buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: NOTHING";
     }
 
     public double getMoney() {
@@ -158,6 +193,14 @@ public class gamemanager : MonoBehaviour
 
     public bool isBuilding() {
         return stationBuilding || cableBuilding;
+    }
+
+    public void StopAllBuilding() {
+        foreach (GameObject oneCable in cables) {
+            oneCable.GetComponent<cablescript>().buildmode = false;
+        }
+        cableBuilding = false;
+        stationBuilding = false;
     }
 
     public void setMoney(double moneyChange) {
@@ -180,6 +223,9 @@ public class gamemanager : MonoBehaviour
         else if (moneyPerTime < 0) {
             moneyPerTimeString = "<color=\"red\">" + moneyPerTime.ToString("F2") + "</color>";
         }
+        else {
+            moneyPerTimeString = "" + 0;
+        } 
         //moneyPerTimeString += " / Day";
         moneyPerTimeText.GetComponent<TextMeshProUGUI>().text = moneyPerTimeString;
     }
@@ -187,6 +233,9 @@ public class gamemanager : MonoBehaviour
     public void BuildStation() {
         if(!isBuilding()) {
             stationBuilding = true;
+        }
+        else {
+            StopAllBuilding();
         }
     }
 
@@ -200,6 +249,9 @@ public class gamemanager : MonoBehaviour
             // The UI cost display script needs the cable to be isntantiated from the start
             GameObject temp = Instantiate(cable, target, transform.rotation);
             cables.Add(temp);
+        }
+        else {
+            StopAllBuilding();
         }
     }
 
@@ -226,8 +278,10 @@ public class gamemanager : MonoBehaviour
         }
     }
 
-    public void StationToggler() {
-        
+    public void GameOver() {
+        endGame.SetActive(true);
+        endGame.GetComponent<CanvasGroup>().DOFade(1f, 1f);
+        endGameText.GetComponent<TextMeshProUGUI>().text = "score: " + (int) score;
     }
 
     IEnumerator TimeAdvancement() {
@@ -235,6 +289,11 @@ public class gamemanager : MonoBehaviour
             timeText.GetComponent<TextMeshProUGUI>().text = time + "/" + (100) + " days";
             time++;
             setMoney(moneyPerTime);
+
+            if(Random.Range(0,100) < 25 && time > 3) {
+                GetComponent<StormBehavior>().CreateStorm();
+            }
+
             yield return new WaitForSeconds(6);
         }
     }

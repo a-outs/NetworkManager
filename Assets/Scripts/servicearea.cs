@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.Experimental.U2D;
 
 public class servicearea : MonoBehaviour
 {
     [SerializeField]
     private int residents;
+
+    public int totalResidents;
 
     [SerializeField]
     private string name;
@@ -16,24 +19,31 @@ public class servicearea : MonoBehaviour
 
     public List<GameObject> serviceStations;
 
+    private GameObject stats;
     private GameObject statsText;
     private GameObject detailedStats;
     private GameObject detailedStatsText;
 
     private gamemanager gameManager;
 
+    private Color defaultColor;
+
     // Start is called before the first frame update
     void Start()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<gamemanager>();
 
-        statsText = gameObject.transform.Find("Canvas").Find("Stats").gameObject;
+        stats = gameObject.transform.Find("Canvas").Find("Stats").gameObject;
+        statsText = stats.transform.Find("StatsText").gameObject;
         statsText.GetComponent<TextMeshProUGUI>().text = name;
         detailedStats = gameObject.transform.Find("Canvas").Find("DetailedStats").gameObject;
         detailedStatsText = detailedStats.transform.Find("DetailedStatsText").gameObject;
         detailedStats.transform.DOScale(0,0);
 
         transitionLength = gameManager.hoverOverLength;
+
+        defaultColor = new Color(0.4f, 0.55f, 1f,((float) residents/(float) totalResidents)*4f);
+        GetComponent<UnityEngine.U2D.SpriteShapeRenderer>().color = defaultColor;
     }
 
     // Update is called once per frame
@@ -43,17 +53,21 @@ public class servicearea : MonoBehaviour
     }
 
     void OnMouseEnter() {
-        statsText.transform.DOScale(1,0);
-        statsText.transform.DOScale(1.5f,transitionLength);
+        stats.transform.DOScale(1,0);
+        stats.transform.DOScale(1.5f,transitionLength);
         detailedStats.transform.DOScale(0,0);
         detailedStats.transform.DOScale(1.5f,transitionLength);
+        Color newColor = defaultColor;
+        newColor.a = 1f;
+        GetComponent<UnityEngine.U2D.SpriteShapeRenderer>().color = newColor;
     }
 
     void OnMouseExit() {
-        statsText.transform.DOScale(1.5f,0);
-        statsText.transform.DOScale(1,transitionLength);
+        stats.transform.DOScale(1.5f,0);
+        stats.transform.DOScale(1,transitionLength);
         detailedStats.transform.DOScale(1.5f,0);
         detailedStats.transform.DOScale(0f,transitionLength);
+        GetComponent<UnityEngine.U2D.SpriteShapeRenderer>().color = defaultColor;
     }
 
     public void addServiceStation(GameObject serviceStation) {

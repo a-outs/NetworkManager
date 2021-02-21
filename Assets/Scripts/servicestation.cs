@@ -77,7 +77,10 @@ public class servicestation : MonoBehaviour
             }
         }
 
-        if(serviceArea) infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2");
+        if(serviceArea) {
+            if(broken) infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2") + "\nRepair Cost: " + repairCost.ToString("F2");
+            else infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2");
+        }
     }
 
     void OnMouseEnter() {
@@ -102,6 +105,10 @@ public class servicestation : MonoBehaviour
         maintenanceCost = maintCost;
         repairCost = repCost;
         revenue = (double) serviceArea.GetComponent<servicearea>().getResidents()/1000 * Mathf.Pow(1.2f, (float) -serviceArea.GetComponent<servicearea>().getBuiltCount());
+    }
+
+    public void setRepairCost(double repCost) {
+        repairCost = repCost;
     }
 
     public double getMaintenanceCost() {

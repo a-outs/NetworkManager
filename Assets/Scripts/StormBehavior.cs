@@ -15,7 +15,7 @@ public class StormBehavior : MonoBehaviour
     void Start()
     {
         gameManager = this.GetComponent<gamemanager>();
-
+        serviceStations = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -33,7 +33,7 @@ public class StormBehavior : MonoBehaviour
         }
     }
 
-    void CreateStorm()
+    public void CreateStorm()
     {
         Vector2 providerPos = new Vector2(0, 0);
         Collider2D[] objectsInRadius = null;
@@ -48,7 +48,7 @@ public class StormBehavior : MonoBehaviour
             providerPos = serviceStations[randomIndex].transform.position;
 
             // Set the radius of the affected area
-            float stormRadius = Random.Range(6, 9);
+            float stormRadius = Random.Range(9, 12);
 
             // Get all objects within 
             objectsInRadius = Physics2D.OverlapCircleAll(providerPos, stormRadius);
@@ -70,7 +70,7 @@ public class StormBehavior : MonoBehaviour
             {
                 int chanceInt = Random.Range(0, 4);
                 // 20% chance of breaking
-                if (chanceInt == 0)
+                if (chanceInt <= 2 && provider.name != "ServiceSource")
                 {
                     if (provider.GetComponent<servicestation>().building == false)
                     {
