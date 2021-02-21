@@ -1094,6 +1094,7 @@ MonoBehaviour:
   cables: []
   serviceAreas: []
   serviceSource: {fileID: 2002781465}
+  validStations: []
   cableCost: 100
   serviceStationCost: 6969
   serviceStationMaintenance: 69
