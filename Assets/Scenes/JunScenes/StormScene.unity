@@ -397,6 +397,9 @@ MonoBehaviour:
   speed: 3
   zoomedWeight: 100
   zoomSpeed: 1000
+  maxCamBound: {x: 0, y: 0, z: 0}
+  minCambound: {x: 0, y: 0, z: 0}
+  camSize: 0
 --- !u!81 &424628869
 AudioListener:
   m_ObjectHideFlags: 0
