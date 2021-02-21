@@ -22,15 +22,6 @@ public class StormBehavior : MonoBehaviour
     void Update()
     {
         serviceStations = gameManager.serviceStations;
-        CheckForStormCreation();
-    }
-
-    void CheckForStormCreation()
-    {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            CreateStorm();
-        }
     }
 
     public void CreateStorm()

@@ -5,10 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class menucontroller : MonoBehaviour
 {
+    AudioSource audioSource;
+
+    [SerializeField]
+    AudioClip clickClip;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -18,6 +23,7 @@ public class menucontroller : MonoBehaviour
     }
 
     public void StartButton() {
+        audioSource.PlayOneShot(clickClip);
         SceneManager.LoadScene("Game");
     }
 }

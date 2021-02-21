@@ -78,7 +78,7 @@ public class servicestation : MonoBehaviour
         }
 
         if(serviceArea) {
-            if(broken) infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2") + "\nRepair Cost: " + repairCost.ToString("F2");
+            if(broken) infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2") + "\nRepair $: " + repairCost.ToString("F2");
             else infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2");
         }
     }
@@ -112,7 +112,7 @@ public class servicestation : MonoBehaviour
     }
 
     public double getMaintenanceCost() {
-        if(building) return 0;
+        if(building || broken) return 0;
         else return maintenanceCost;
     }
 

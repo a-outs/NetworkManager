@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 using DG.Tweening;
 using UnityEngine.UI;
@@ -51,7 +52,6 @@ public class gamemanager : MonoBehaviour
     private GameObject moneyPerTimeText;
     private GameObject timeText;
     private GameObject scoreText;
-    private GameObject buildingStatus;
     private GameObject StationIcon;
     private GameObject cableBuildingIndicator;
     private GameObject stationBuildingIndicator;
@@ -68,7 +68,6 @@ public class gamemanager : MonoBehaviour
         moneyPerTimeText = GameObject.Find("MoneyPerTime");
         timeText = GameObject.Find("Time");
         scoreText = GameObject.Find("Score");
-        buildingStatus = GameObject.Find("BuildingStatus");
         StationIcon = GameObject.Find("StationIcon");
         cableBuildingIndicator = GameObject.Find("CableIndicator");
         stationBuildingIndicator = GameObject.Find("StationIndicator");
@@ -93,7 +92,7 @@ public class gamemanager : MonoBehaviour
                 if(serviceArea.GetComponent<servicearea>().serviceStations.Count > 0) serviceAreasCovered++;
             }
             score = money * serviceStations.Count * Mathf.Pow(1.5f, serviceAreasCovered);
-            scoreText.GetComponent<TextMeshProUGUI>().text = "Score: " + (int) score;
+            scoreText.GetComponent<TextMeshProUGUI>().text = "score: " + (int) score;
 
             //stop cable building if you press escape
             if(Input.GetButtonDown("Cancel") || Input.GetMouseButtonDown(1)) {
@@ -107,7 +106,14 @@ public class gamemanager : MonoBehaviour
                 Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 target.z = transform.position.z;
                 StationIcon.transform.position = target;
-                StationIcon.transform.Find("Canvas").Find("Text").GetComponent<TextMeshProUGUI>().text = "<color=\"red\">" + serviceStationCost.ToString("F2") + "</color>";
+                string costString = "";
+                if(money >= serviceStationCost) {
+                    costString = "<color=\"green\">" + serviceStationCost.ToString("F2") + "</color>";
+                }
+                else {
+                    costString = "<color=\"red\">" + serviceStationCost.ToString("F2") + "</color>";
+                }
+                StationIcon.transform.Find("Canvas").Find("Text").GetComponent<TextMeshProUGUI>().text = costString;
             }
             else StationIcon.SetActive(false);
 
@@ -170,6 +176,7 @@ public class gamemanager : MonoBehaviour
                 stationBuildingIndicator.SetActive(false);
             }
 
+            // GAME OVER KEYBIND PELASE REMOVE WHEN BUILDING
             if(Input.GetKeyDown(KeyCode.T)) {
                 time = 5999;
             }
@@ -180,10 +187,6 @@ public class gamemanager : MonoBehaviour
             }
 
             ValidStations();
-
-            if(cableBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Cable";
-            else if(stationBuilding) buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: Station";
-            else buildingStatus.GetComponent<TextMeshProUGUI>().text = "Building: NOTHING";
         }
     }
 
@@ -205,7 +208,7 @@ public class gamemanager : MonoBehaviour
 
     public void setMoney(double moneyChange) {
         money += moneyChange;
-        moneyText.GetComponent<TextMeshProUGUI>().text = money.ToString("F2");
+        moneyText.GetComponent<TextMeshProUGUI>().text = "$: " + money.ToString("F2");
     }
 
     public void updateMoneyPerTime() {
@@ -216,21 +219,22 @@ public class gamemanager : MonoBehaviour
         foreach (GameObject serviceArea in serviceAreas) {
             moneyPerTime += serviceArea.GetComponent<servicearea>().returnPerTime();
         }
-        string moneyPerTimeString = "";
+        string moneyPerTimeString = "$/day: ";
         if(moneyPerTime > 0) {
-            moneyPerTimeString = "<color=\"green\">" + "+" + moneyPerTime.ToString("F2") + "</color>";
+            moneyPerTimeString += "<color=\"green\">" + "+" + moneyPerTime.ToString("F2") + "</color>";
         }
         else if (moneyPerTime < 0) {
-            moneyPerTimeString = "<color=\"red\">" + moneyPerTime.ToString("F2") + "</color>";
+            moneyPerTimeString += "<color=\"red\">" + moneyPerTime.ToString("F2") + "</color>";
         }
         else {
-            moneyPerTimeString = "" + 0;
+            moneyPerTimeString += "" + 0;
         } 
         //moneyPerTimeString += " / Day";
         moneyPerTimeText.GetComponent<TextMeshProUGUI>().text = moneyPerTimeString;
     }
 
     public void BuildStation() {
+        audioSource.PlayOneShot(clickClip);
         if(!isBuilding()) {
             stationBuilding = true;
         }
@@ -240,6 +244,7 @@ public class gamemanager : MonoBehaviour
     }
 
     public void BuildCable() {
+        audioSource.PlayOneShot(clickClip);
         if(!cableBuilding) {
             stationBuilding = false;
             cableBuilding = true;
@@ -253,6 +258,11 @@ public class gamemanager : MonoBehaviour
         else {
             StopAllBuilding();
         }
+    }
+
+    public void EndButton() {
+        audioSource.PlayOneShot(clickClip);
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void PlayCableNoise() {
@@ -286,7 +296,7 @@ public class gamemanager : MonoBehaviour
 
     IEnumerator TimeAdvancement() {
         while(true) {
-            timeText.GetComponent<TextMeshProUGUI>().text = time + "/" + (100) + " days";
+            timeText.GetComponent<TextMeshProUGUI>().text = "days: " + time + "/" + (100);
             time++;
             setMoney(moneyPerTime);
 
