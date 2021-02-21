@@ -426,8 +426,8 @@ SpriteShapeRenderer:
   m_ShapeTexture: {fileID: 0}
   m_Sprites: []
   m_LocalAABB:
-    m_Center: {x: -0.26494884, y: 0.58363867, z: 0}
-    m_Extent: {x: 5.831938, y: 5.079487, z: 0}
+    m_Center: {x: -0.26494884, y: 0.27396822, z: 0}
+    m_Extent: {x: 5.831938, y: 4.7698164, z: 0}
 --- !u!114 &7533938294410591723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -483,17 +483,27 @@ MonoBehaviour:
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
-    - position: {x: -0.49955496, y: 4.9377866, z: 0}
-      leftTangent: {x: 0.19685674, y: -0.09007692, z: 0}
-      rightTangent: {x: -3.4315143, y: 1.5701823, z: 0}
-      mode: 1
+    - position: {x: -0.49955505, y: 4.937786, z: 0}
+      leftTangent: {x: 0, y: 0, z: 0}
+      rightTangent: {x: 0, y: 0, z: 0}
+      mode: 0
       height: 1
       bevelCutoff: 0
       bevelSize: 0
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
-    - position: {x: 0.5662184, y: 5.043785, z: 0}
+    - position: {x: 0.044141036, y: 5.0094357, z: 0}
+      leftTangent: {x: 0, y: 0, z: 0}
+      rightTangent: {x: 0, y: 0, z: 0}
+      mode: 0
+      height: 1
+      bevelCutoff: 0
+      bevelSize: 0
+      spriteIndex: 0
+      corner: 1
+      m_CornerMode: 1
+    - position: {x: 0.5662181, y: 5.043785, z: 0}
       leftTangent: {x: 0, y: 0, z: 0}
       rightTangent: {x: 0, y: 0, z: 0}
       mode: 0
@@ -504,9 +514,9 @@ MonoBehaviour:
       corner: 1
       m_CornerMode: 1
     - position: {x: 2.0086465, y: 4.9443073, z: 0}
-      leftTangent: {x: -0.063629866, y: 1.076108, z: 0}
-      rightTangent: {x: 2.815404, y: 0.31898594, z: 0}
-      mode: 2
+      leftTangent: {x: 0, y: 0, z: 0}
+      rightTangent: {x: 0, y: 0, z: 0}
+      mode: 0
       height: 1
       bevelCutoff: 0
       bevelSize: 0
