@@ -94,7 +94,7 @@ public class servicestation : MonoBehaviour
     }
 
     void OnMouseDown() {
-        if(broken && !fixing) {
+        if(broken && !fixing && gameManager.getMoney() >= repairCost) {
             gameManager.setMoney(-repairCost);
             fixing = true;
             StartCoroutine("StartRepairing");

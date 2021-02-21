@@ -39,8 +39,6 @@ public class cablescript : MonoBehaviour
 
         costCanvas = gameObject.transform.Find("Canvas").gameObject;
         costText = costCanvas.transform.Find("Cost").gameObject;
-        costText.GetComponent<TextMeshProUGUI>().outlineWidth = 0.2f;
-        costText.GetComponent<TextMeshProUGUI>().outlineColor = new Color32(0, 128, 0, 255);
 
         gameManager = GameObject.Find("GameManager").GetComponent<gamemanager>();
         
@@ -52,6 +50,9 @@ public class cablescript : MonoBehaviour
     {
         if (buildmode)
         {
+            if(firstTimePlacing) costCanvas.SetActive(false);
+            else costCanvas.SetActive(true);
+
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
 
@@ -113,7 +114,7 @@ public class cablescript : MonoBehaviour
     void PlaceNewStation(GameObject objectUnderMouse)
     {
         snappedPos = objectUnderMouse.transform.position;
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && GetCost(snappedPos) <= gameManager.getMoney())
         {
             bool connectionSuccess; // Did I spell Sucess right?
 
@@ -181,7 +182,14 @@ public class cablescript : MonoBehaviour
         if (!firstTimePlacing)
         {
             currentCost = GetCost(target);
-            costText.GetComponent<TextMeshProUGUI>().text = "Cost: " + currentCost.ToString("F2");
+            string textString = "cost: ";
+            if(currentCost <= gameManager.getMoney()) {
+                textString += "<color=\"green\">" + currentCost.ToString("F2") + "</color>";
+            }
+            else {
+                textString += "<color=\"red\">" + currentCost.ToString("F2") + "</color>";
+            }
+            costText.GetComponent<TextMeshProUGUI>().text = textString;
         }
     }
 

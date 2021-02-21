@@ -47,6 +47,8 @@ public class gamemanager : MonoBehaviour
     private AudioClip stationClip;
     [SerializeField]
     private AudioClip clickClip;
+    [SerializeField]
+    private AudioClip stormClip;
 
     private GameObject moneyText;
     private GameObject moneyPerTimeText;
@@ -92,7 +94,7 @@ public class gamemanager : MonoBehaviour
                 if(serviceArea.GetComponent<servicearea>().serviceStations.Count > 0) serviceAreasCovered++;
             }
             score = money * serviceStations.Count * Mathf.Pow(1.5f, serviceAreasCovered);
-            scoreText.GetComponent<TextMeshProUGUI>().text = "score: " + (int) score;
+            scoreText.GetComponent<TextMeshProUGUI>().text = "score: " + score.ToString("N0");
 
             //stop cable building if you press escape
             if(Input.GetButtonDown("Cancel") || Input.GetMouseButtonDown(1)) {
@@ -137,7 +139,7 @@ public class gamemanager : MonoBehaviour
                             GameObject tempStation = Instantiate(serviceStation, target, transform.rotation);
                             
                             double serviceStationMaintenance = 5 * Mathf.Pow(1.05f, serviceStations.Count);
-                            double serviceStationRepairCost = (double) Mathf.Log((float) serviceStationCost, 2f);
+                            double serviceStationRepairCost = (double) 5 * Mathf.Log((float) serviceStationCost, 2f);
                             
                             serviceStations.Add(tempStation);
 
@@ -174,11 +176,6 @@ public class gamemanager : MonoBehaviour
             }
             else {
                 stationBuildingIndicator.SetActive(false);
-            }
-
-            // GAME OVER KEYBIND PELASE REMOVE WHEN BUILDING
-            if(Input.GetKeyDown(KeyCode.T)) {
-                time = 5999;
             }
 
             if(time > 100) {
@@ -291,17 +288,18 @@ public class gamemanager : MonoBehaviour
     public void GameOver() {
         endGame.SetActive(true);
         endGame.GetComponent<CanvasGroup>().DOFade(1f, 1f);
-        endGameText.GetComponent<TextMeshProUGUI>().text = "score: " + (int) score;
+        endGameText.GetComponent<TextMeshProUGUI>().text = "score: " + score.ToString("N0");
     }
 
     IEnumerator TimeAdvancement() {
-        while(true) {
+        while(!gameOver) {
             timeText.GetComponent<TextMeshProUGUI>().text = "days: " + time + "/" + (100);
             time++;
             setMoney(moneyPerTime);
 
             if(Random.Range(0,100) < 25 && time > 3) {
                 GetComponent<StormBehavior>().CreateStorm();
+                audioSource.PlayOneShot(stormClip, 0.3f);
             }
 
             yield return new WaitForSeconds(6);

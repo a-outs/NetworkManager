@@ -58,7 +58,7 @@ public class servicearea : MonoBehaviour
         detailedStats.transform.DOScale(0,0);
         detailedStats.transform.DOScale(1.5f,transitionLength);
         Color newColor = defaultColor;
-        newColor.a = 1f;
+        newColor.a = 0.9f;
         GetComponent<UnityEngine.U2D.SpriteShapeRenderer>().color = newColor;
     }
 
