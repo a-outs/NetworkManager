@@ -11,8 +11,8 @@ public class servicestation : MonoBehaviour
     public List<GameObject> connectedStations;
     public bool connectedToServer;
     public bool broken;
+    public bool building;
     private bool fixing;
-    private bool building;
 
     private SpriteRenderer spriteRenderer;
 
