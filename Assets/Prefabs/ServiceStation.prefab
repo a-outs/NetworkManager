@@ -449,7 +449,7 @@ Transform:
   m_GameObject: {fileID: 7993966304075689134}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.31187448, y: 0.31187448, z: 0.31187448}
+  m_LocalScale: {x: 0.3118745, y: 0.3118745, z: 0.31187448}
   m_Children:
   - {fileID: 3823680555149262137}
   m_Father: {fileID: 0}
@@ -495,12 +495,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d616fac151073ab4e84dd0185d4ee256, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0d698781b842b2f4c922c86d6114581c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 6, y: 6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -522,6 +522,13 @@ MonoBehaviour:
   connectedStations: []
   connectedToServer: 0
   broken: 0
+  maintenanceCost: 0
+  repairCost: 0
+  revenue: 0
+  defaultSprite: {fileID: 21300000, guid: 0d698781b842b2f4c922c86d6114581c, type: 3}
+  brokenSprite: {fileID: 21300000, guid: d15aba452a099044f9c934f0f48e8099, type: 3}
+  disconnectedSprite: {fileID: 21300000, guid: 54a6fc81df6924b4db75f0b985b6e9c2, type: 3}
+  highlightedSprite: {fileID: 21300000, guid: 3a4f2794f1751d24da3a4b5769aaa663, type: 3}
 --- !u!61 &155008019125530551
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -539,8 +546,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 5.12, y: 5.12}
-    newSize: {x: 1, y: 1}
+    oldSize: {x: 6, y: 6}
+    newSize: {x: 6, y: 6}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0

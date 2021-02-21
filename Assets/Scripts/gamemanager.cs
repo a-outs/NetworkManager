@@ -8,15 +8,13 @@ public class gamemanager : MonoBehaviour
 
     [SerializeField]
     private double money;
-
     private int time;
-
     private double moneyPerTime;
+    private double score;
 
     public float hoverOverLength;
 
     public float repairTime;
-
     public float buildTime;
 
     public GameObject serviceStation;
@@ -25,6 +23,7 @@ public class gamemanager : MonoBehaviour
     public List<GameObject> cables;
 
     public GameObject[] serviceAreas;
+    public int serviceAreasCovered;
 
     public GameObject serviceSource;
 
@@ -35,14 +34,22 @@ public class gamemanager : MonoBehaviour
     private bool stationBuilding;
 
     public double cableCost;
-    public double serviceStationCost;
-    public double serviceStationMaintenance;
-    public double serviceStationRepairCost;
+
+    private AudioSource audioSource;
+
+    [SerializeField]
+    private AudioClip connectClip;
+    [SerializeField]
+    private AudioClip stationClip;
+    [SerializeField]
+    private AudioClip clickClip;
 
     private GameObject moneyText;
     private GameObject moneyPerTimeText;
     private GameObject timeText;
+    private GameObject scoreText;
     private GameObject buildingStatus;
+    private GameObject StationIcon;
 
     // Start is called before the first frame update
     void Start()
@@ -52,7 +59,12 @@ public class gamemanager : MonoBehaviour
         moneyText = GameObject.Find("Money");
         moneyPerTimeText = GameObject.Find("MoneyPerTime");
         timeText = GameObject.Find("Time");
+        scoreText = GameObject.Find("Score");
         buildingStatus = GameObject.Find("BuildingStatus");
+        StationIcon = GameObject.Find("StationIcon");
+        StationIcon.SetActive(false);
+
+        audioSource = GetComponent<AudioSource>();
 
         serviceAreas = GameObject.FindGameObjectsWithTag("ServiceArea");
 
@@ -64,6 +76,13 @@ public class gamemanager : MonoBehaviour
     void Update()
     {
         updateMoneyPerTime();
+
+        serviceAreasCovered = 0;
+        foreach(GameObject serviceArea in serviceAreas) {
+            if(serviceArea.GetComponent<servicearea>().serviceStations.Count > 0) serviceAreasCovered++;
+        }
+        score = money * serviceStations.Count * Mathf.Pow(1.5f, serviceAreasCovered);
+        scoreText.GetComponent<TextMeshProUGUI>().text = "Score: " + score.ToString("F2");
 
         //stop cable building if you press escape
         if(Input.GetButtonDown("Cancel") || Input.GetMouseButtonDown(1)) {
@@ -78,23 +97,45 @@ public class gamemanager : MonoBehaviour
             BuildStation();
         }
 
+        // make station icon follow mouse if building
+        if(stationBuilding) {
+            double serviceStationCost = 49 + Mathf.Pow(1.2f, serviceStations.Count);
+            StationIcon.SetActive(true);
+            Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            target.z = transform.position.z;
+            StationIcon.transform.position = target;
+            StationIcon.transform.Find("Canvas").Find("Text").GetComponent<TextMeshProUGUI>().text = "<color=\"red\">" + serviceStationCost.ToString("F2") + "</color>";
+        }
+        else StationIcon.SetActive(false);
+
+
         // Service station spawning
-        if(Input.GetMouseButtonDown(0) && money >= serviceStationCost && stationBuilding) {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
-            if(hit.collider != null) {
-                if(hit.collider.tag == "ServiceArea") { 
-                    // everything up to here is checking to see if there is enough money and if the station is on a service area and not ontop of another station
-                    Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    target.z = transform.position.z;
-                    GameObject tempStation = Instantiate(serviceStation, target, transform.rotation);
+        if(Input.GetMouseButtonDown(0) && stationBuilding) {
+            double serviceStationCost = 49 + Mathf.Pow(1.2f, serviceStations.Count);
+            if(money >= serviceStationCost) {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity);
+                if(hit.collider != null) {
+                    if(hit.collider.tag == "ServiceArea") { 
+                        // everything up to here is checking to see if there is enough money and if the station is on a service area and not ontop of another station
+                        audioSource.PlayOneShot(stationClip);
 
-                    serviceStations.Add(tempStation);
+                        Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        target.z = transform.position.z;
+                        GameObject tempStation = Instantiate(serviceStation, target, transform.rotation);
+                        
+                        double serviceStationMaintenance = 5 * Mathf.Pow(1.05f, serviceStations.Count);
+                        double serviceStationRepairCost = (double) Mathf.Log((float) serviceStationCost, 2f);
+                        
+                        serviceStations.Add(tempStation);
 
-                    hit.collider.gameObject.GetComponent<servicearea>().addServiceStation(tempStation);
-                    tempStation.GetComponent<servicestation>().addServiceArea(hit.collider.gameObject);
+                        hit.collider.gameObject.GetComponent<servicearea>().addServiceStation(tempStation);
+                        tempStation.GetComponent<servicestation>().addServiceArea(hit.collider.gameObject);
 
-                    setMoney(-serviceStationCost);
+                        tempStation.GetComponent<servicestation>().setCosts(serviceStationMaintenance, serviceStationRepairCost);
+
+                        setMoney(-serviceStationCost);
+                    }
                 }
             }
         }
@@ -126,7 +167,9 @@ public class gamemanager : MonoBehaviour
 
     public void updateMoneyPerTime() {
         moneyPerTime = 0;
-        moneyPerTime -= serviceStations.Count * serviceStationMaintenance;
+        foreach (GameObject serviceStation in serviceStations) {
+            moneyPerTime -= serviceStation.GetComponent<servicestation>().getMaintenanceCost();
+        }
         foreach (GameObject serviceArea in serviceAreas) {
             moneyPerTime += serviceArea.GetComponent<servicearea>().returnPerTime();
         }
@@ -160,6 +203,10 @@ public class gamemanager : MonoBehaviour
         }
     }
 
+    public void PlayCableNoise() {
+        audioSource.PlayOneShot(connectClip);
+    }
+
     public void ValidStations() {
         validStations = new List<GameObject>();
         validStations.Add(serviceSource);
@@ -188,7 +235,7 @@ public class gamemanager : MonoBehaviour
             timeText.GetComponent<TextMeshProUGUI>().text = time + "/" + (100) + " days";
             time++;
             setMoney(moneyPerTime);
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(6);
         }
     }
 }

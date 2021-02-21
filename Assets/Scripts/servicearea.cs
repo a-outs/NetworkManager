@@ -39,7 +39,7 @@ public class servicearea : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        detailedStatsText.GetComponent<TextMeshProUGUI>().text = "Residents: " + residents + /*"\nCost: (-)" + costPerTime() + "\nRevenue: " + returnPerTime() +*/ "\nProfit: <b>" + (returnPerTime() - costPerTime()) + "</b>";
+        detailedStatsText.GetComponent<TextMeshProUGUI>().text = "Residents: " + residents + /*"\nCost: (-)" + costPerTime() + "\nRevenue: " + returnPerTime() +*/ "\nProfit: <b>" + (returnPerTime() - costPerTime()).ToString("F2") + "</b>";
     }
 
     void OnMouseEnter() {
@@ -62,18 +62,22 @@ public class servicearea : MonoBehaviour
 
     // function to return how much money this service area should give per unit of time
     public double returnPerTime() {
-        int serviceStationCount = 0;
+        double revenue = 0;
         foreach(GameObject serviceStation in serviceStations) {
-            if(serviceStation.GetComponent<servicestation>().isActive()) serviceStationCount++;
+            if(serviceStation.GetComponent<servicestation>().isActive()) revenue += serviceStation.GetComponent<servicestation>().revenue;
         }
-        return (double) (residents * serviceStationCount);
+        return revenue;
     }
 
     private double costPerTime() {
-        return (double) (serviceStations.Count * gameManager.serviceStationMaintenance); 
+        double moneyPerTime = 0;
+        foreach (GameObject serviceStation in serviceStations) {
+            moneyPerTime += serviceStation.GetComponent<servicestation>().getMaintenanceCost();
+        }
+        return (double) (moneyPerTime); 
     }
 
-    public double profitForStation(GameObject station) {
-        return (double) (residents);
-    }
+    public int getResidents() { return residents; }
+
+    public int getBuiltCount() { return serviceStations.Count; }
 }

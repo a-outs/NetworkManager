@@ -20,6 +20,19 @@ public class servicestation : MonoBehaviour
     private GameObject infoText;
     private GameObject loadingImage;
 
+    public double maintenanceCost;
+    public double repairCost;
+    public double revenue;
+
+    [SerializeField]
+    private Sprite defaultSprite;
+    [SerializeField]
+    private Sprite brokenSprite;
+    [SerializeField]
+    private Sprite disconnectedSprite;
+    [SerializeField]
+    private Sprite highlightedSprite;
+
     private float transitionLength;
 
     private gamemanager gameManager;
@@ -46,23 +59,25 @@ public class servicestation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //checkConnections();
 
-        if (isActive())
-        {
-            spriteRenderer.color = Color.green;
-        }
-        else
-        {
-            spriteRenderer.color = Color.yellow;
-            if (broken && !fixing) 
+        if(gameObject.name != "ServiceSource") {
+            if (isActive())
             {
-                loadingImage.GetComponent<Image>().fillAmount = 1;
-                loadingImage.GetComponent<Image>().color = Color.red;
+                spriteRenderer.sprite = defaultSprite;
+            }
+            else
+            {
+                spriteRenderer.sprite = disconnectedSprite;
+                if (broken && !fixing) 
+                {
+                    spriteRenderer.sprite = brokenSprite;
+                    loadingImage.GetComponent<Image>().fillAmount = 1;
+                    loadingImage.GetComponent<Image>().color = Color.red;
+                }
             }
         }
 
-        if(serviceArea) infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + gameManager.serviceStationMaintenance + "\nRevenue: " + serviceArea.GetComponent<servicearea>().profitForStation(gameObject);
+        if(serviceArea) infoText.GetComponent<TextMeshProUGUI>().text = "Station\nCost: " + maintenanceCost.ToString("F2") + "\nRevenue: " + revenue.ToString("F2");
     }
 
     void OnMouseEnter() {
@@ -77,10 +92,21 @@ public class servicestation : MonoBehaviour
 
     void OnMouseDown() {
         if(broken && !fixing) {
-            gameManager.setMoney(-gameManager.serviceStationRepairCost);
+            gameManager.setMoney(-repairCost);
             fixing = true;
             StartCoroutine("StartRepairing");
         }
+    }
+
+    public void setCosts(double maintCost, double repCost) {
+        maintenanceCost = maintCost;
+        repairCost = repCost;
+        revenue = (double) serviceArea.GetComponent<servicearea>().getResidents()/1000 * Mathf.Pow(1.2f, (float) -serviceArea.GetComponent<servicearea>().getBuiltCount());
+    }
+
+    public double getMaintenanceCost() {
+        if(building) return 0;
+        else return maintenanceCost;
     }
 
     IEnumerator StartBuilding() {

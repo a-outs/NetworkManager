@@ -150,6 +150,7 @@ public class cablescript : MonoBehaviour
     }
 
     void CreateNode(Vector3 position) {
+        gameManager.PlayCableNoise();
         GameObject tempNode = Instantiate(node, position, transform.rotation);
         tempNode.transform.SetParent(gameObject.transform);
 
@@ -172,7 +173,7 @@ public class cablescript : MonoBehaviour
         dist = Mathf.Abs(dist);
 
         double cost = (double)dist;
-        return cost * gameManager.cableCost;
+        return 5 + Mathf.Pow(1.2f, (float) (cost * gameManager.cableCost));
     }
 
     void UpdateCableCost(Vector3 target)
