@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ServiceArea
   - ServiceStation
+  - ServiceSource
   layers:
   - Default
   - TransparentFX
