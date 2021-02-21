@@ -22,6 +22,10 @@ public class cablescript : MonoBehaviour
     public List<GameObject> nodes;
     public double currentCost;
 
+    public Vector3 textOffset;
+    public GameObject costCanvas;
+    public GameObject costText;
+
     public gamemanager gameManager;
 
     // Start is called before the first frame update
@@ -32,6 +36,13 @@ public class cablescript : MonoBehaviour
         lineRenderer.positionCount++;
         length = 0;
         buildmode = true;
+
+        costCanvas = gameObject.transform.Find("Canvas").gameObject;
+        costText = costCanvas.transform.Find("Cost").gameObject;
+        costText.GetComponent<TextMeshProUGUI>().outlineWidth = 0.2f;
+        costText.GetComponent<TextMeshProUGUI>().outlineColor = new Color32(0, 128, 0, 255);
+
+        gameManager = GameObject.Find("GameManager").GetComponent<gamemanager>();
         
         //CreateNode(transform.position);
     }
@@ -44,18 +55,20 @@ public class cablescript : MonoBehaviour
             Vector3 target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             target.z = transform.position.z;
 
+            costCanvas.transform.position = target + textOffset;
+
             GameObject objectUnderMouse = GetObjectUnderMouse();
             if (objectUnderMouse)
             {
                 PlaceNewStation(objectUnderMouse);
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
+                UpdateCableCost(snappedPos);
             }
             else
             {
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, target); // Free flow
+                UpdateCableCost(target);
             }
-
-            UpdateCableCost(target);
 
         } else {
             // Resize the list so that the last element would be automatically deleted
@@ -66,6 +79,8 @@ public class cablescript : MonoBehaviour
             // the next time it enters buildmode it will be as the same thing as
             // building for the first time
             firstTimePlacing = true;
+
+            costCanvas.SetActive(false);
         }
     }
 
@@ -110,12 +125,13 @@ public class cablescript : MonoBehaviour
             {
                 lastStationPlaced = objectUnderMouse;
 
+                // When node placed, get cost and subtract this amount from wallet
+                double cost = GetCost(snappedPos);
+                gameManager.setMoney(-cost);
+
                 // Use the center of the object under the cursor as the position for the node
                 CreateNode(snappedPos);
                 //lineRenderer.SetPosition(lineRenderer.positionCount - 1, snappedPos); // Snapped
-
-                // When node placed, get cost and subtract this amount from wallet
-                double cost = GetCost(snappedPos);
 
                 firstTimePlacing = false;
             }
@@ -144,6 +160,8 @@ public class cablescript : MonoBehaviour
 
     double GetCost(Vector3 targetPos)
     {
+        if(nodes.Count == 0) return 0;
+
         int size = nodes.Count;
         GameObject latestNode = nodes[size - 1];
         Vector3 latestNodePos = latestNode.transform.position;
@@ -154,7 +172,7 @@ public class cablescript : MonoBehaviour
         dist = Mathf.Abs(dist);
 
         double cost = (double)dist;
-        return cost;
+        return cost * gameManager.cableCost;
     }
 
     void UpdateCableCost(Vector3 target)
@@ -162,6 +180,7 @@ public class cablescript : MonoBehaviour
         if (!firstTimePlacing)
         {
             currentCost = GetCost(target);
+            costText.GetComponent<TextMeshProUGUI>().text = "Cost: " + currentCost.ToString("F2");
         }
     }
 

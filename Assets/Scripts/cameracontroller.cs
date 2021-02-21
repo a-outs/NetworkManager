@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class cameracontroller : MonoBehaviour
 {
-    public float zoomSpeed = 1;
-    public float targetOrtho;
-    public float smoothSpeed = 2.0f;
-    public float minOrtho = 1.0f;
-    public float maxOrtho = 20.0f;
+    [SerializeField]
+    float speed;
+
+    [SerializeField]
+    float zoomedWeight;
+
+    [SerializeField]
+    float zoomSpeed;
+
+    Vector2 velocity;
     
     void Start() {
-        targetOrtho = Camera.main.orthographicSize;
+        
     }
     
     void Update () {
         
-        float scroll = Input.GetAxis ("Mouse ScrollWheel");
-        if (scroll != 0.0f) {
-            targetOrtho -= scroll * zoomSpeed;
-            targetOrtho = Mathf.Clamp (targetOrtho, minOrtho, maxOrtho);
-        }
-        
-        Camera.main.orthographicSize = Mathf.MoveTowards (Camera.main.orthographicSize, targetOrtho, smoothSpeed * Time.deltaTime);
+        velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * speed * Time.deltaTime * ((GetComponent<Camera>().orthographicSize / 100) * zoomedWeight);
+        transform.Translate(velocity);
+
+        GetComponent<Camera>().orthographicSize -= Input.GetAxis("Mouse ScrollWheel") * zoomSpeed * Time.deltaTime;
     }
 }
