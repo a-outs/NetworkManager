@@ -57,13 +57,14 @@ public class gamemanager : MonoBehaviour
         serviceAreas = GameObject.FindGameObjectsWithTag("ServiceArea");
 
         setMoney(0);
-        updateMoneyPerTime();
         StartCoroutine("TimeAdvancement");
     }
 
     // Update is called once per frame
     void Update()
     {
+        updateMoneyPerTime();
+
         //stop cable building if you press escape
         if(Input.GetButtonDown("Cancel") || Input.GetMouseButtonDown(1)) {
             foreach (GameObject oneCable in cables) {
@@ -94,7 +95,6 @@ public class gamemanager : MonoBehaviour
                     tempStation.GetComponent<servicestation>().addServiceArea(hit.collider.gameObject);
 
                     setMoney(-serviceStationCost);
-                    updateMoneyPerTime();
                 }
             }
         }
@@ -116,12 +116,12 @@ public class gamemanager : MonoBehaviour
     }
 
     public bool isBuilding() {
-        return stationBuilding && cableBuilding;
+        return stationBuilding || cableBuilding;
     }
 
     public void setMoney(double moneyChange) {
         money += moneyChange;
-        moneyText.GetComponent<TextMeshProUGUI>().text = "Money: " + money.ToString("F2");
+        moneyText.GetComponent<TextMeshProUGUI>().text = money.ToString("F2");
     }
 
     public void updateMoneyPerTime() {
@@ -137,6 +137,7 @@ public class gamemanager : MonoBehaviour
         else if (moneyPerTime < 0) {
             moneyPerTimeString = "<color=\"red\">" + moneyPerTime.ToString("F2") + "</color>";
         }
+        //moneyPerTimeString += " / Day";
         moneyPerTimeText.GetComponent<TextMeshProUGUI>().text = moneyPerTimeString;
     }
 
@@ -184,7 +185,7 @@ public class gamemanager : MonoBehaviour
 
     IEnumerator TimeAdvancement() {
         while(true) {
-            timeText.GetComponent<TextMeshProUGUI>().text = "Time: " + time;
+            timeText.GetComponent<TextMeshProUGUI>().text = time + "/" + (100) + " days";
             time++;
             setMoney(moneyPerTime);
             yield return new WaitForSeconds(3);
